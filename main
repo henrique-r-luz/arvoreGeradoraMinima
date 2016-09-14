@@ -1,0 +1,13 @@
+import matplotlib.pyplot as plt
+from grafo import Grafo
+from WorkCsv import WorkCSV
+
+obj = WorkCSV()
+obj.printDocString()
+obj.openCSV('/home/henrique/Dropbox/mestrado/data mining/data base/ruspini.csv',",")
+ruspine = obj.listCSV()
+G = Grafo()
+G.criaGrafo(ruspine)
+plt.show()
+
+
