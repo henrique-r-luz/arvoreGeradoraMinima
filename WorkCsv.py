@@ -22,6 +22,7 @@ class WorkCSV:
         lista = []
         for [id, x, y] in self.fileCSV:
                 lista.append((id,x,y))
-        lista.remove(('id','x','y'))
+        #lista.remove(('id','x','y'))
+        del lista[0]
         return lista
             #print ('Primeiro Nome = %s - Nome do Meio = %s - Ultimo Nome = %s' % (fNome, mNome, lNome))

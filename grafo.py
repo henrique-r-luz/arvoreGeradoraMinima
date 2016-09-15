@@ -1,21 +1,28 @@
 import networkx as nx
 from math import sqrt
+import numpy as np
+from Estatistica import Estatistica
 
 class Grafo:
     grafo = nx.Graph()
-    noGrafo = {1:(4.0,53.0)}
+    noGrafo = {43:(63,139)}
     pos = {}
     profundidade  = 2
     valorArestaReferencia = []
+    arestaRemovidas = []
 
     def criaGrafo(self,lista):
         for [id, x, y] in lista:
-            self.grafo.add_node(int(id),color='blue', pos=(float(x), float(y)))
+            self.grafo.add_node(int(id), pos=(float(x), float(y)))
         self.pos = nx.get_node_attributes(self.grafo, 'pos')
         pos = self.pos.copy()
         self.geraArvoreGeradoraMinima()
+        for u, v, d in self.grafo.edges(data=True):
+            self.validaAresta(u,v)
+        self.grafo.remove_edges_from(self.arestaRemovidas)
         nx.draw(self.grafo, pos, with_labels=True, node_size=200)
-        self.validaAresta((9,14))
+        #nx.draw_networkx_edge_labels(self.grafo, pos)
+
 
 
     def geraArvoreGeradoraMinima(self):
@@ -39,23 +46,53 @@ class Grafo:
              return
 
 
-    def validaAresta(self,aresta):
-        a,b = aresta
+
+
+
+    def validaAresta(self, u,v):
+
+        flagV = False
+        flagU = False
+        est = Estatistica()
         self.valorArestaReferencia = []
-        self.calculaProximidade(a,b,0)
-        print(self.valorArestaReferencia)
+        self.calculaProximidade(u, v, 0)
+        valor = np.array(self.valorArestaReferencia)
+        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
+        #if  u==64 :
+        print(self.grafo[u][v]['weight'])
+        if self.grafo[u][v]['weight'] > calculoAresta:
+            flagU = True
+
+        self.valorArestaReferencia = []
+        self.calculaProximidade(v, u, 0)
+        valor = np.array(self.valorArestaReferencia)
+        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
+        #if  v==64 :
+         #    print(calculoAresta)
+        if self.grafo[v][u]['weight'] > calculoAresta:
+            flagV = True
+
+        if flagV and flagU:
+            self.arestaRemovidas.append((u,v))
+
+
+
+
+
+
 
     def calculaProximidade(self,vertice,verticeNaoAnalisado,contaProfundidade):
-        if contaProfundidade < self.profundidade:
-            for n in self.grafo.adjacency_iter():
-                if n[0]==vertice:
-                    contaProfundidade = contaProfundidade+1
-                    conjuntoVertice = n[1]
-                    del conjuntoVertice[verticeNaoAnalisado]
-                    print(conjuntoVertice)
-                    for no in conjuntoVertice.keys():
-                        self.valorArestaReferencia.append(conjuntoVertice[no]['weight'])
-                        self.calculaProximidade(no,vertice,contaProfundidade)
+        vizinhos  = self.grafo.neighbors(vertice)
+        i = vizinhos.index(verticeNaoAnalisado)
+        del vizinhos[i]
+        if(len(vizinhos)!=0):
+            if contaProfundidade < self.profundidade:
+                for no in vizinhos:
+                    self.valorArestaReferencia.append(self.grafo[no][vertice]['weight'])
+                    novoContador = contaProfundidade+1
+                    self.calculaProximidade(no,vertice,novoContador)
+        else:
+            self.valorArestaReferencia.append(self.grafo[vertice][verticeNaoAnalisado]['weight'])
 
 
 
