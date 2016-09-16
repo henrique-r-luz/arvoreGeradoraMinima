@@ -10,6 +10,10 @@ class Grafo:
     profundidade  = 2
     valorArestaReferencia = []
     arestaRemovidas = []
+    G = 0
+    grupos = {}
+    contGrupo = 1
+    listaGrupo = []
 
     def criaGrafo(self,lista):
         for [id, x, y] in lista:
@@ -20,6 +24,9 @@ class Grafo:
         for u, v, d in self.grafo.edges(data=True):
             self.validaAresta(u,v)
         self.grafo.remove_edges_from(self.arestaRemovidas)
+        self.G = self.grafo.copy()
+        self.defineTodosGrupos(1)
+        print(self.grupos)
         nx.draw(self.grafo, pos, with_labels=True, node_size=200)
         #nx.draw_networkx_edge_labels(self.grafo, pos)
 
@@ -58,8 +65,6 @@ class Grafo:
         self.calculaProximidade(u, v, 0)
         valor = np.array(self.valorArestaReferencia)
         calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
-        #if  u==64 :
-        print(self.grafo[u][v]['weight'])
         if self.grafo[u][v]['weight'] > calculoAresta:
             flagU = True
 
@@ -67,16 +72,11 @@ class Grafo:
         self.calculaProximidade(v, u, 0)
         valor = np.array(self.valorArestaReferencia)
         calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
-        #if  v==64 :
-         #    print(calculoAresta)
         if self.grafo[v][u]['weight'] > calculoAresta:
             flagV = True
 
         if flagV and flagU:
             self.arestaRemovidas.append((u,v))
-
-
-
 
 
 
@@ -93,6 +93,33 @@ class Grafo:
                     self.calculaProximidade(no,vertice,novoContador)
         else:
             self.valorArestaReferencia.append(self.grafo[vertice][verticeNaoAnalisado]['weight'])
+
+
+    def defineTodosGrupos(self,v):
+        nos = self.G.nodes()
+        #nos.remove([])
+        while len(nos) != 0:
+
+            self.grupos[self.contGrupo] = []
+            self.listaGrupo = []
+            self.listaGrupo.append(v)
+            self.criaGrupos(v)
+            self.listaGrupo.sort()
+            self.grupos[self.contGrupo] = self.listaGrupo
+            self.contGrupo += 1
+            nos = self.G.nodes()
+            if len(nos)!=0:
+                v = nos[0]
+
+
+
+    def criaGrupos(self,v):
+       vizinhos = self.G.neighbors(v)
+       self.G.remove_node(v)
+       for no in vizinhos:
+           self.listaGrupo.append(no)
+           self.criaGrupos(no)
+
 
 
 

@@ -8,7 +8,7 @@ class Estatistica:
         NPelementos = np.array(elementos)
         soma = 0
         if len(elementos) == 1:
-            devioAmostral = 1
+            devioAmostral = 0
         else:
             for item in elementos:
                 soma += ((item - NPelementos.mean()) ** 2)
