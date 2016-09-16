@@ -5,17 +5,19 @@ from Estatistica import Estatistica
 
 class Grafo:
     grafo = nx.Graph()
-    noGrafo = {43:(63,139)}
+    noGrafo = {1:(4,53)}
     pos = {}
-    profundidade  = 2
+    profundidade  = 3
+    peso = 2
     valorArestaReferencia = []
     arestaRemovidas = []
     G = 0
-    grupos = {}
+    grupos = {}#dicionario que contém os grupos
     contGrupo = 1
     listaGrupo = []
 
     def criaGrafo(self,lista):
+
         for [id, x, y] in lista:
             self.grafo.add_node(int(id), pos=(float(x), float(y)))
         self.pos = nx.get_node_attributes(self.grafo, 'pos')
@@ -41,7 +43,8 @@ class Grafo:
                 for noNewGrafo in self.noGrafo:
                     if(noNewGrafo!=no):
                         distAux = sqrt(((self.pos[no][0] - self.noGrafo[noNewGrafo][0]) ** 2) + ((self.pos[no][1] - self.noGrafo[noNewGrafo][1]) ** 2))
-                        if(distAux<distAB):
+
+                        if distAux < distAB:
                             distAB = distAux
                             verticeU = no
                             verticeV = noNewGrafo
@@ -64,14 +67,16 @@ class Grafo:
         self.valorArestaReferencia = []
         self.calculaProximidade(u, v, 0)
         valor = np.array(self.valorArestaReferencia)
-        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
+        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.peso)
+
         if self.grafo[u][v]['weight'] > calculoAresta:
             flagU = True
 
         self.valorArestaReferencia = []
         self.calculaProximidade(v, u, 0)
         valor = np.array(self.valorArestaReferencia)
-        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.profundidade)
+        calculoAresta = valor.mean() + (est.dPAmostral(self.valorArestaReferencia)*self.peso)
+
         if self.grafo[v][u]['weight'] > calculoAresta:
             flagV = True
 
